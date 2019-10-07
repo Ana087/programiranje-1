@@ -25,7 +25,23 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_words(test_text, 'de')
 # {'izdere', 'debel', 'oddide', 'začudeno'}
 ###############################################################################
+import re
 
+def find_words(tekst, niz):
+    niz = r'\b\w*' + niz + r'\w*\b'
+    besede = re.findall(niz, tekst)
+    return set(besede)
+
+# [w for w in vzorec vzorec.finditer(tekst)]
+# [m for m in ... finditer(...)]
+'''def find_words(tekst, niz):
+    tekst = test_text
+    besede = tekst.split()
+    seznam = []
+    for beseda in besede:
+        if niz in beseda:
+            seznam.append(beseda)
+    return seznam'''
 
 ###############################################################################
 # 2) Sestavite funkcijo [find_prefix], ki vrne množico vseh besed, ki se
@@ -34,7 +50,10 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_prefix(test_text, 'zi')
 # {'zibala', 'zibel', 'zibelko'}
 ###############################################################################
-
+def find_prefix(tekst, niz):
+    niz = r'\b' + niz + r'\w*\b'
+    besede = re.findall(niz, tekst)
+    return set(besede)
 
 ###############################################################################
 # 3) Sestavite funkcijo [find_suffix], ki vrne množico vseh besed, ki se
@@ -43,6 +62,10 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> find_suffix(test_text, 'la')
 # {'zibala', 'razveselila', 'prestrašila', 'šivala', 'opazila', 'tla'}
 ###############################################################################
+def find_suffix(tekst, niz):
+    niz = r'\b\w*' + niz + r'\b'
+    besede = re.findall(niz, tekst)
+    return set(besede)
 
 
 ###############################################################################
@@ -52,3 +75,7 @@ medved. Zvrhano zibelko sladkih hrušk mi je prinesel za en sam izdrt trn"."""
 # >>> double_letters('A volunteer is worth twenty pressed men.')
 # {'volunteer', 'pressed'}
 ###############################################################################
+def double_letters(niz):
+    podniz = r'\b\w*(\w)\1\w*\b'
+    return set(beseda.group(0) for beseda in re.finditer(podniz, niz))
+
