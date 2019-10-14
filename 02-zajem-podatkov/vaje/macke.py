@@ -109,7 +109,10 @@ def get_dict_from_ad_block(block):
 def ads_from_file(filename, directory):
     """Funkcija prebere podatke v datoteki "directory"/"filename" in jih
     pretvori (razčleni) v pripadajoč seznam slovarjev za vsak oglas posebej."""
-    raise NotImplementedError()
+    page = read_file_to_string(filename, directory)
+    blocks = page_to_ads(page)
+    ads = [get_dict_from_ad_block(block) for block in blocks]
+    return ads
 
 
 ###############################################################################
@@ -148,7 +151,7 @@ def write_cat_ads_to_csv(ads, directory, filename):
     # Prednost je v tem, da ga lahko pod določenimi pogoji izklopimo v
     # produkcijskem okolju
     assert ads and (all(j.keys() == ads[0].keys() for j in ads))
-    raise NotImplementedError()
+    write_csv(ads[0].keys(), ads, directory, filename)
 
 
 # Celoten program poženemo v glavni funkciji
@@ -160,19 +163,15 @@ def main(redownload=False, reparse=True):
     3. Podatke shrani v csv datoteko
     """
     # Najprej v lokalno datoteko shranimo glavno stran
+    save_frontpage(cat_directory, frontpage_filename)
 
     # Iz lokalne (html) datoteke preberemo podatke
-
+    ads = page_to_ads(read_file_to_string(cat_directory, frontpage_filename))
     # Podatke prebermo v lepšo obliko (seznam slovarjev)
-
+    ads_nice = [get_dict_from_ad_block(ad) for ad in ads]
     # Podatke shranimo v csv datoteko
-
-    # Dodatno: S pomočjo parameteov funkcije main omogoči nadzor, ali se
-    # celotna spletna stran ob vsakem zagon prense (četudi že obstaja)
-    # in enako za pretvorbo
-
-    raise NotImplementedError()
+    write_cat_ads_to_csv(ads_nice, cat_directory, csv_filename)
 
 
-#if __name__ == '__main__':
-   # main()
+if __name__ == '__main__':
+   main()
