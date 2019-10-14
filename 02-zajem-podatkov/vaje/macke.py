@@ -63,7 +63,9 @@ def save_frontpage(page, directory, filename):
 
 def read_file_to_string(directory, filename):
     """Funkcija vrne celotno vsebino datoteke "directory"/"filename" kot niz"""
-    raise NotImplementedError()
+    path = os.path.join(directory, filename)
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 # Definirajte funkcijo, ki sprejme niz, ki predstavlja vsebino spletne strani,
@@ -73,9 +75,12 @@ def read_file_to_string(directory, filename):
 
 
 def page_to_ads(page_content):
-    """Funkcija poišče posamezne ogllase, ki se nahajajo v spletni strani in
+    """Funkcija poišče posamezne oglase, ki se nahajajo v spletni strani in
     vrne njih seznam"""
-    raise NotImplementedError()
+    rx = re.compile(r'<div class="ad">(.*?)<div class="clear">',
+                    re.DOTALL)
+    ads = re.findall(rx, page_content)
+    return ads
 
 
 # Definirajte funkcijo, ki sprejme niz, ki predstavlja oglas, in izlušči
@@ -86,7 +91,14 @@ def get_dict_from_ad_block(block):
     """Funkcija iz niza za posamezen oglasni blok izlušči podatke o imenu, ceni
     in opisu ter vrne slovar, ki vsebuje ustrezne podatke
     """
-    raise NotImplementedError()
+    rx = re.compile(r'title="(?P<name>.*?)"'
+                    r'.*?</h3>\s*(?P<description>.*?)\s*</?div'
+                    r'.*?class="price">(<span>)?(?P<price>.*?)'
+                    r'( €</span>)?</div',
+                    re.DOTALL)
+    data = re.search(rx, block)
+    ad_dict = data.groupdict()
+    return ad_dict
 
 
 # Definirajte funkcijo, ki sprejme ime in lokacijo datoteke, ki vsebuje
