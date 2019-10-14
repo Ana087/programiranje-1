@@ -1,3 +1,5 @@
+import requests
+import re
 import csv
 import os
 
@@ -8,11 +10,11 @@ import os
 # definiratje URL glavne strani bolhe za oglase z mačkami
 cats_frontpage_url = 'http://www.bolha.com/zivali/male-zivali/macke/'
 # mapa, v katero bomo shranili podatke
-cat_directory = 'TODO'
+cat_directory = 'macke'
 # ime datoteke v katero bomo shranili glavno stran
-frontpage_filename = 'TODO'
+frontpage_filename = 'frontpage.html'
 # ime CSV datoteke v katero bomo shranili podatke
-csv_filename = 'TODO'
+csv_filename = 'cats.csv'
 
 
 def download_url_to_string(url):
@@ -21,13 +23,14 @@ def download_url_to_string(url):
     """
     try:
         # del kode, ki morda sproži napako
-        page_content = 'TODO'
-    except 'TODO':
+        page_content = requests.get(url).text
+    except requests.exceptions.RequestException as e:
         # koda, ki se izvede pri napaki
         # dovolj je če izpišemo opozorilo in prekinemo izvajanje funkcije
-        raise NotImplementedError()
+        print(e)
+        page_content = ""
     # nadaljujemo s kodo če ni prišlo do napake
-    raise NotImplementedError()
+    return page_content
 
 
 def save_string_to_file(text, directory, filename):
@@ -48,7 +51,9 @@ def save_string_to_file(text, directory, filename):
 def save_frontpage(page, directory, filename):
     """Funkcija shrani vsebino spletne strani na naslovu "page" v datoteko
     "directory"/"filename"."""
-    raise NotImplementedError()
+    content = download_url_to_string(page)
+    save_string_to_file(content, directory, filename)
+    return
 
 
 ###############################################################################
@@ -136,7 +141,7 @@ def write_cat_ads_to_csv(ads, directory, filename):
 
 # Celoten program poženemo v glavni funkciji
 
-def main(redownload=True, reparse=True):
+def main(redownload=False, reparse=True):
     """Funkcija izvede celoten del pridobivanja podatkov:
     1. Oglase prenese iz bolhe
     2. Lokalno html datoteko pretvori v lepšo predstavitev podatkov
@@ -157,5 +162,5 @@ def main(redownload=True, reparse=True):
     raise NotImplementedError()
 
 
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+   # main()
