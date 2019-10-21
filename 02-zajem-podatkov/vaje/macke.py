@@ -100,6 +100,8 @@ def get_dict_from_ad_block(block):
     ad_dict = data.groupdict()
     return ad_dict
 
+#DEBUGGEX
+
 
 # Definirajte funkcijo, ki sprejme ime in lokacijo datoteke, ki vsebuje
 # besedilo spletne strani, in vrne seznam slovarjev, ki vsebujejo podatke o
