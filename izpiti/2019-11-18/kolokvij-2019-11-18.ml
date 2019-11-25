@@ -33,7 +33,7 @@ let rec apply list1 list2 =
     | (_, x :: xs) -> apply_aux list1 xs ([(uporabi_funkcije list1 x)] @ acc)
   in apply_aux list1 list2 []
 
-(* Inverz ne dela, funkcija brez inverza deluje.)
+(* Inverz ne dela, funkcija brez inverza deluje.*)
 
 (* ======================================= *)
 (* 2. naloga: podatkovni tipi in rekurzija *)
