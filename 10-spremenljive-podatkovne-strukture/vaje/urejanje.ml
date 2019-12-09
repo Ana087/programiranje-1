@@ -9,6 +9,11 @@
  val l : int list = [0; 1; 0; 4; 0; 9; 1; 2; 5; 4]
 [*----------------------------------------------------------------------------*)
 
+let rec randlist len max =
+  let rec listgen len acc =
+    if len <= 0 then acc 
+    else listgen (len - 1) (Random.int max :: acc)
+  in listgen len []
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  Sedaj lahko s pomočjo [randlist] primerjamo našo urejevalno funkcijo (imenovana
@@ -18,6 +23,10 @@
  let test = (randlist 100 100) in (our_sort test = List.sort compare test);;
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+let rec tester our_sort len = 
+  (*Pove, ali funkcija [our-sort] pravilno uredi naključni seznam dolžine [len]*)
+  let test = randlist len 10000 in 
+  our_sort test = List.sort compare test
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
  Urejanje z Vstavljanjem
@@ -35,12 +44,23 @@
  - : int list = [7]
 [*----------------------------------------------------------------------------*)
 
+let rec insert y xs =
+  match xs with
+  | [] -> [y]
+  | z :: zs -> if z >= y then y :: z :: zs else z :: (insert y zs)
+
 
 (*----------------------------------------------------------------------------*]
  Prazen seznam je že urejen. Funkcija [insert_sort] uredi seznam tako da
  zaporedoma vstavlja vse elemente seznama v prazen seznam.
 [*----------------------------------------------------------------------------*)
 
+let rec insert_sort list = 
+  let rec insert_aux list acc =
+    match list with
+    | [] -> acc
+    | x :: xs -> insert_aux xs (insert x acc)
+  in insert_aux list []
 
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
@@ -52,6 +72,30 @@
  najmanjši element v [list] in seznam [list'] enak [list] z odstranjeno prvo
  pojavitvijo elementa [z]. V primeru praznega seznama vrne [None]. 
 [*----------------------------------------------------------------------------*)
+let odstrani list =
+  match list with
+  | [] -> []
+  | x :: xs -> xs
+
+let minimum_urejenega list =
+  match list with
+  | [] -> 0
+  | x :: xs -> x
+
+let rec min_and_rest list =
+  match list with
+  | [] -> None
+  | x :: xs -> Some (minimum_urejenega (insert_sort list), odstrani (insert_sort list))
+
+
+let rec min_and_rest_2 = function
+  | [] -> None
+  | x :: xs ->
+    let rec get_min acc = function
+      | [] -> acc
+      | y :: ys -> get_min (min y acc) ys
+    in
+    get_min x xs
 
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
@@ -72,6 +116,10 @@
  Namig: Uporabi [min_and_rest] iz prejšnje naloge.
 [*----------------------------------------------------------------------------*)
 
+let rec selection_sort xs =
+  match min_and_rest xs with 
+  | None -> []
+  | Some (m, rest) -> m :: selection_sort rest
 
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
@@ -99,15 +147,43 @@
  - : unit = ()
  # test;;
  - : int array = [|0; 4; 2; 3; 1|]
+
+ a.(3) <- 12
 [*----------------------------------------------------------------------------*)
+
+let rec swap a i j =
+  let ai = a.(i) in
+    a.(i) <- a.(j);
+    a.(j) <- ai
+
+let rec swap_2 a i j =
+  let ai = a.(i) in
+    let () = a.(i) <- a.(j) in
+    let () = a.(j) <- ai in
+    ()
 
 
 (*----------------------------------------------------------------------------*]
  Funkcija [index_min a lower upper] poišče indeks najmanjšega elementa tabele
  [a] med indeksoma [lower] and [upper] (oba indeksa sta vključena).
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- index_min [|0; 2; 9; 3; 6|] 2 4 = 4
+ (index_min [|0; 2; 9; 3; 6|] 2 4) = 3
 [*----------------------------------------------------------------------------*)
+
+let rec index_min a lower upper =
+  let rec search mini i =
+    if i > upper then
+      (*Končali iskanje.*)
+      mini
+    else if a.(i) < a.(mini) then
+      (*Našli nov njamanjši element, posodobi indeks minimuma*)
+      search i (i + 1)
+    else
+      (*Nezanimiv element, išči naprej.*)
+      search mini (i + 1)
+  in
+  (*Začni iskanje pri [lower] kjer je njamanjši do sedaj videni element prav tako na indeksu [lower].*)
+  search lower lower
 
 
 (*----------------------------------------------------------------------------*]
@@ -116,4 +192,26 @@
  Namig: Za testiranje uporabi funkciji [Array.of_list] in [Array.to_list]
  skupaj z [randlist].
 [*----------------------------------------------------------------------------*)
+
+let selection_sort_array a =
+  let len = Array.length a in
+  let rec sorter lower =
+    if lower >= len then 
+    (*Everything is sorted*)
+    () 
+    else
+    (*Find the minimal element in the rest of the list and swap it with the element on the lower end of the "to be sorted" part of the list.*)
+    let mini = index_min a lower (len - 1) in
+    let () = swap a lower mini in
+      (*Sort the rest of the list.*)
+      sorter (lower + 1)
+  in
+  sorter 0
+
+let rec array_tester our_sort len =
+  let test = randlist len 10000 in
+  let test_array = Array.of_list test in
+  let () = our_sort test_array in
+  Array.to_list test_array = List.sort compare test
+
 
