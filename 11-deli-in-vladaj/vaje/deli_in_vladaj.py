@@ -26,6 +26,26 @@
 #     >>> a
 #     [10, 2, 0, 4, 11, 15, 17, 5, 18]
 ###############################################################################
+def pivot(a, start, end):
+  if end <= start:
+    # Nothing to do, bad imput
+    return start
+  # We have an index that tells us where the first element larger
+  # than the pivot is, and we maintain that invariant throughout
+  # the loop.
+  first_larger = start + 1
+  for i in range(start, end + 1):
+    if a[i] < a[start]:
+      # This element need to end up oon the left side of the pivot.
+      a[first_larger], a[i] = a[i], a[first_larger]
+      # Switch it with the "first_larger" element and update that index.
+      first_larger += 1
+  # Move the pivot to the right place.
+  # We swap its position with the last smaller element.
+  a[start], a[first_larger - 1] = a[first_larger - 1], a[start]
+  return first_larger - 1
+
+
 
 
 
@@ -43,7 +63,31 @@
 # element po velikosti. Funkcija sme spremeniti tabelo [a]. Cilj naloge je, da
 # jo rešite brez da v celoti uredite tabelo [a].
 ###############################################################################
-
+def kth_element(a, k):
+  lower = 0
+  upper = len(a) - 1
+  while True:
+    # See if the first element of the sublist is the k-th.
+    candidate_i = pivot(a, lower, upper)
+    if candidate_i == k:
+      return a[candidate_i]
+    elif candidate_i < k:
+      # We continue searching amongst larger elements.
+      lower = candidate_i + 1
+    else:
+      # We continue searching amongst smaller elements.
+      upper = candidate_i - 1
+    
+def kth_element_with_recursion(a, k):
+  def kth(lower, upper):
+    candidate_i = pivot(a, lower, upper)
+    if candidate_i == k:
+      return a[candidate_i]
+    elif candidate_i < k:
+      return kth(candidate_i + 1, upper)
+    else:
+      return kth(lower, candidate_i - 1)
+  return kth(0, len(a) - 1)
 
 
 ###############################################################################
@@ -59,8 +103,30 @@
 #     >>> quicksort(a)
 #     [2, 3, 4, 5, 10, 11, 15, 17, 18]
 ###############################################################################
+import random
 
+def quicksort(a):
+  def qsort(a, s, e):
+    # Check if done (if there is one or less elements)
+    if e <= s:
+      return
+    # Pivot
+    p_i = pivot(a, s, e)
+    # Sort smaller than pivot
+    qsort(a, s, p_i - 1)
+    # Sort bigger than pivot
+    qsort(a, p_i + 1, e)
+  qsort(a, 0, len(a) - 1)
 
+def test_quicksort():
+  for _ in range(1000):
+    a = [random.randint(-10000, 10000) for _ in range(100)]
+    b1 = a[:] # Seznam, ki skopira a od začetka do konca
+    b2 = a[:]
+    quicksort(b1)
+    b2.sort()
+    if b1 != b2:
+      return "Not working, try {}".format(a)
 
 ###############################################################################
 # Če imamo dve urejeni tabeli, potem urejeno združeno tabelo dobimo tako, da
