@@ -21,6 +21,41 @@ let test_matrix =
      [| 2 ; 4 ; 5 |];
      [| 7 ; 0 ; 1 |] |]
 
+let max_cheese cheese_matrix =
+  (* i is used for rows and j for columns*)
+  let max_i = Array.length cheese_matrix in
+  let max_j = Array.length cheese_matrix.(0) in
+  let max_matrix = Array.make_matrix max_i max_j 0 in
+  let how_much_cheese i j =
+    let cheese = cheese_matrix.(i).(j) in
+    if i < (max_i - 1) then
+      if j < (max_j - 1) then
+        cheese + max (max_matrix.(i+1).(j)) (max_matrix.(i).(j+1))
+      else
+        cheese + max_matrix.(i + 1).(j)
+    else
+      if j < (max_j - 1) then
+        cheese + max_matrix.(i).(j + 1)
+      else
+        cheese
+  in
+  let rec loop i j =
+    let cheese = how_much_cheese i j in
+    let () = max_matrix.(i).(j) <- cheese in
+    if j > 0 then
+      (* vse je vredu*)
+      loop i (j-1)
+      else
+        (* Moramo skočiti v novo vrstico.*)
+        if i > 0 then
+          loop (i-1) (max_j-1)
+        else
+          ()
+  in
+  let () = loop (max_i-1) (max_j-1) in
+  max_matrix.(0).(0)
+
+
 (*----------------------------------------------------------------------------*]
  Rešujemo problem sestavljanja alternirajoče obarvanih stolpov. Imamo štiri
  različne tipe gradnikov, dva modra in dva rdeča. Modri gradniki so višin 2 in
@@ -37,6 +72,40 @@ let test_matrix =
  - : int = 35
 [*----------------------------------------------------------------------------*)
 
+type color = Red | Blue 
+
+let alternating_towers h =
+  (*Make memory*)
+  let red_mem = Array.make (h+1) 0 in
+  let blue_mem = Array.make (h+1) 0 in
+  (*Calculate one value by using recursion with memory*)
+  let red_towers h = 
+    (*Check bounds*)
+    match h with
+    | 0 -> 0
+    | 1 -> 1
+    | 2 -> 1
+    | h -> (*Gradnik 1*) blue_mem.(h - 1) + (*gradnik 2*) blue_mem.(h - 2)
+  in
+  let blue_towers h =
+    (*Check bounds*)
+    match h with
+    | 0 -> 0
+    | 1 -> 0
+    | 2 -> 1
+    | 3 -> 2
+    | h -> (*Gradnik 1*) red_mem.(h - 2) + (*gradnik 2*) red_mem.(h - 3)
+  in
+  (*Loop over all values in the correct order*)
+  let rec loop n =
+    if n > h then () else 
+    let _ = red_mem.(n) <- red_towers n in
+    let _ = blue_mem.(n) <- blue_towers n in
+    loop (n+1)
+  in
+  (*Return result*)
+  let _ = loop 0 in
+  red_mem.(h) + blue_mem.(h)
 
 (*----------------------------------------------------------------------------*]
  Na nagradni igri ste zadeli kupon, ki vam omogoča, da v Mercatorju kupite
