@@ -27,7 +27,7 @@ def najdaljse_narascajoce_podzaporedje(sez):
         else:
           return zavrnemo
 
-    return najdaljse(0, sez[0])
+    return najdaljse(0, min(sez))
 
 
 
